@@ -1,0 +1,124 @@
+<html>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+      <title>Expense Tracker</title>
+      <link rel="stylesheet" href="style.css">
+    </head>
+
+      <header>
+        <h1>Expense</h1>
+      </header>
+  
+  <body>
+    <form id="my-form" onsubmit="saveToLocalStorage(event)">
+      <label>Amount</label>
+      <input type="number" name="username" id="name" required /><br>
+      <label>Select Dish</label>
+      <select name ="emailId" id="emailId" required>
+        <option value = paneer >paneer</option>
+        <option value = jalebi >jalebi</option>
+        <option value = Roti >roti</option>
+      </select><br>
+      <!-- <input type="text" id="emailId" name="emailId" required /><br> -->
+      <label>Choose Table</label>
+      <select name ="table" id="table" required>
+        <option value = table1 >table1</option>
+        <option value = table2 >table2</option>
+        <option value = table3 >table3</option>
+      </select><br>
+      <!-- <label> table </label>
+      <input type ="number" id="table" name = "table" required/> -->
+      <button>submit</button><br>
+    </form>
+    <!-- <form>
+            <label> address </label>
+            <input type ="text" name = my name/>
+        </form> -->
+
+    <ul id="listofusers">
+      <!-- <li>user 1 </li> -->
+    </ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.5/axios.min.js"></script>
+    <script>
+      function saveToLocalStorage(event) {
+        event.preventDefault();
+        const table = event.target.table.value;
+        const name = event.target.username.value;
+        const email = event.target.emailId.value;
+       
+        const obj = {
+          name,
+          email,
+          table
+        };
+
+        axios
+          .post(
+            "https://crudcrud.com/api/e7b0a386bd514d938fcfe7ade0b46557/appoint",
+            obj
+          )
+          .then((respone) => {
+            console.log(respone.data);
+            showNewUserOnScreen(respone.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const data = axios
+          .get(
+            "https://crudcrud.com/api/e7b0a386bd514d938fcfe7ade0b46557/appoint"
+          )
+          .then((response) => {
+            console.log(response.data)
+
+            for (var i = 0; i < response.data.length; i++) {
+              showNewUserOnScreen(response.data[i]);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+      function showNewUserOnScreen(user) {
+        const parentNode = document.getElementById("listofusers");
+        const childHTML = `<li id=${user._id}>  ${user.name} - ${user.email} - ${user.table} 
+                             <button onclick=deleteUser('${user._id}')>Delete</button ><button onclick=editUser('${user._id}','${user.name}','${user.email}','${user.table}')>edit</button>
+                              </li>`;
+
+        parentNode.innerHTML = parentNode.innerHTML + childHTML;
+      }
+      function deleteUser(user) {
+      axios.delete(`https://crudcrud.com/api/e7b0a386bd514d938fcfe7ade0b46557/appoint/${user}`)
+      .then((respone) => {
+        removeUserFromScreen(user);
+    
+        console.log(respone.data)
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      }
+
+      function editUser(id,table,name,email) {
+        document.getElementById("table").value=table;
+        document.getElementById("name").value=name;
+        document.getElementById("emailId").value=email;
+        
+        deleteUser(id);
+      }
+
+      function removeUserFromScreen(id) {
+        const parentNode = document.getElementById("listofusers");
+        const childNodeToBeDeleted = document.getElementById(id);
+       
+        parentNode.removeChild(childNodeToBeDeleted);
+      }
+    </script>
+  </body>
+</html>
